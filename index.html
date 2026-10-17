@@ -1,11 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Weather App</title>
+    <script src="https://kit.fontawesome.com/81fe930d2a.js" crossorigin="anonymous"></script>    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        
+        @custom-variant dark (&:where(.dark, .dark *));
+        @utility temp-border {
+            @apply border-2 border-dotted border-red-300;
+        }
+        @utility forecast-by-time {
+            @apply flex-1  flex shrink-0 flex-col justify-between py-1 my-1 items-center bg-white dark:bg-[#131D33] dark:hover:bg-[#1E2D50] rounded-2xl hover:bg-[#E7ECF4];
+        }
+    </style>
 </head>
-<body>
-    
+
+<body class="flex h-full lg:h-screen 2xl:w-1/2 2xl:h-screen mx-auto 2xl:bg-[#12213C] bg-[#E7ECF4]">
+    <div class="w-16 shrink-0 bg-white lg:flex lg:flex-col justify-between items-center py-4 hidden dark:bg-[#101829]">
+        <div class="bg-[#313D82] w-10 h-10 rounded-md flex items-center justify-center">
+            <img class="w-6" src="Assets\icons\weather-few-clouds-svgrepo-com.svg" alt="">
+        </div>
+        <div class="flex flex-col gap-15 justify-start flex-auto mt-15">
+            <div class="flex items-center justify-center">
+                <i class="fa-regular fa-house dark:text-[#9AA9C2]"></i>
+            </div>
+            <div class="flex items-center justify-center">
+                <i class="fa-regular fa-map dark:text-[#9AA9C2]"></i>
+            </div>
+            <div class="flex items-center justify-center">
+                <i class="fa-solid fa-location-dot dark:text-[#9AA9C2]"></i>
+            </div>
+            <div class="flex items-center justify-center">
+                <i class="fa-thin fa-sun dark:text-[#9AA9C2]"></i>
+            </div>
+        </div>
+        <div>
+            <div class="bg-white w-10 h-10 rounded-md  flex items-center justify-center">
+                <button id="toggle1" class="cursor-pointer"><i class="fa-regular fa-sun"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-row justify-around lg:hidden fixed w-full h-15 items-center bottom-0 bg-white  dark:bg-[#101829]">
+        <div class="flex items-center justify-center">
+            <i class="fa-regular fa-house dark:text-[#9AA9C2]"></i>
+        </div>
+        <div class="flex items-center justify-center">
+            <i class="fa-regular fa-map dark:text-[#9AA9C2]"></i>
+        </div>
+        <div class="flex items-center justify-center">
+            <i class="fa-solid fa-location-dot dark:text-[#9AA9C2]"></i>
+        </div>
+        <div class="flex items-center justify-center">
+            <button id="toggle2" class="cursor-pointer"><i class="fa-regular fa-sun dark:text-[#9AA9C2]"></i></button>
+        </div>
+    </div>
+    <div class="flex-auto flex flex-col lg:grid lg:grid-rows-[auto_auto_1fr] lg:grid-cols-[650px_1fr] gap-8 lg:gap-4 bg-[#E7ECF4] pb-20 p-7 xl:pb-150 h-full dark:bg-[#0B1220]">
+        <div class="h-15">
+            <h1 id="location" class="font-bold text-2xl text-[#12213C] dark:text-white">Lisbon, Portugal</h1>
+            <p id="time" class="text-[#4A5A72] dark:text-[#9AA9C2]">Tuesday, 13 October. updated just now</p>
+        </div>
+        <div class="lg:h-15 flex flex-row gap-4 justify-between items-end">
+            <div class="flex flex-row gap-2">
+                <input id="txtSearchCity" class="h-10 w-60 rounded-md text-[#4A5A72] dark:bg-[#131D33] dark:text-[#6EA2FF] p-4 bg-white" type="text"
+                    placeholder="Search for a city">
+                <button class="h-10 w-20 bg-[#313D82] rounded-md cursor-pointer text-white flex flex-row justify-center"><img
+                        class="w-10" src="Assets\icons\search-map-svgrepo-com.svg" alt=""
+                        onClick="searchCity()"></button>
+            </div>
+            <div class="bg-white rounded-md flex flex-row h-10 w-20 items-center justify-center dark:bg-[#131D33] gap-1">
+                <div id="temp_c"><input
+                        class="h-9 w-9 cursor-pointer rounded-md bg-[#313D82] dark:bg-[#6EA2FF] hover:bg-[#313D82] dark:hover:bg-[#6EA2FF] hover:text-white text-white"
+                        type="button" value="ºC" onclick="unit_c()"></div>
+                <div id="temp_f"><input
+                        class="h-9 w-9 cursor-pointer rounded-md bg-white dark:bg-[#131D33] hover:bg-[#313D82] dark:hover:bg-[#6EA2FF] hover:text-white text-[#4A5A72]"
+                        type="button" value="ºF" onclick="unit_f()"></div>
+            </div>
+        </div>
+        <div class="h-50 bg-[#313D82] dark:bg-[#1A2F6E] rounded-2xl flex flex-row items-center px-1 lg:px-10">
+            <div class="flex-1 pl-3">
+                <small class="text-[#C9D7F7]">Right now</small>
+                <p id="currentTemperature" class="text-white font-bold text-7xl">24º</p>
+                <p id="conditionText" class="text-white font-medium pt-2">Partly cloudy</p>
+                <small id="feelsLike" class="text-[#C9D7F7]">Feels like 25º. High 26º. Low 17º</small>
+            </div>
+            <div id="mainIcon" class="flex-1 lg:mr-12 flex justify-end items-center">
+                <img class="w-50" src="353.webp" alt="">
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border-red-400 row-span-2 p-4 flex flex-col dark:bg-[#131D33]">
+            <div class="h-10">
+                <p class="font-medium dark:text-white">7-day forecast</p>
+            </div>
+            <div class="grid grid-cols-[1fr_1fr_1fr_5fr_1fr] md:grid-cols-[1fr_1fr_1fr_10fr_1fr] flex-1 px-2">
+                <div class="flex flex-col justify-around">
+                    <small id="day+1" class="font-medium dark:text-white">Today</small>
+                    <small id="day+2" class="font-medium dark:text-white">Wed</small>
+                    <small id="day+3" class="font-medium dark:text-white">Thu</small>
+                    <small id="day+4" class="font-medium dark:text-white">Fri</small>
+                    <small id="day+5" class="font-medium dark:text-white">Sat</small>
+                    <small id="day+6" class="font-medium dark:text-white">Sun</small>
+                    <small id="day+7" class="font-medium dark:text-white">Mon</small>
+                </div>
+                <div class="flex flex-col justify-around">
+                    <div id="img-day+1"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+2"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+3"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+4"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+5"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+6"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                    <div id="img-day+7"><img class="w-8 mx-2" src="353.webp" alt=""></div>
+                </div>
+                <div class="flex flex-col justify-around">
+                    <small id="temp-min-day+1" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">17º</small>
+                    <small id="temp-min-day+2" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">16º</small>
+                    <small id="temp-min-day+3" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">15º</small>
+                    <small id="temp-min-day+4" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">14º</small>
+                    <small id="temp-min-day+5" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">15º</small>
+                    <small id="temp-min-day+6" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">17º</small>
+                    <small id="temp-min-day+7" class="mx-2 text-[#4A5A72] dark:text-[#9AA9C2]">18º</small>
+                </div>
+                <div class="flex flex-col justify-around">
+                    <div id="progress-day+1" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 34%; width: 20%"></div>
+                    </div>
+                    <div id="progress-day+2" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 32%; width: 16%"></div>
+                    </div>
+                    <div id="progress-day+3" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 30%; width: 12%"></div>
+                    </div>
+                    <div id="progress-day+4" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 28%; width: 16%"></div>
+                    </div>
+                    <div id="progress-day+5" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 30%; width: 20%"></div>
+                    </div>
+                    <div id="progress-day+6" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 34%; width: 20%"></div>
+                    </div>
+                    <div id="progress-day+7" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-1.5">
+                        <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-1.5 rounded-full" style="margin-left: 36%; width: 16%"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-around">
+                    <small id="temp-max-day+1" class="font-medium ml-2 dark:text-white">27º</small>
+                    <small id="temp-max-day+2" class="font-medium ml-2 dark:text-white">24º</small>
+                    <small id="temp-max-day+3" class="font-medium ml-2 dark:text-white">21º</small>
+                    <small id="temp-max-day+4" class="font-medium ml-2 dark:text-white">22º</small>
+                    <small id="temp-max-day+5" class="font-medium ml-2 dark:text-white">25º</small>
+                    <small id="temp-max-day+6" class="font-medium ml-2 dark:text-white">27º</small>
+                    <small id="temp-max-day+7" class="font-medium ml-2 dark:text-white">26º</small>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl flex flex-col dark:bg-[#131D33]">
+            <div class="pl-6 pt-3">
+                <p class="font-medium dark:text-white">Next 8 hours</p>
+            </div>
+            <div class="flex flex-row p-2 flex-auto overflow-x-auto scrollbar-thin">
+                <div class="forecast-by-time">
+                    <small id="now" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">Now</small>
+                    <div id="img-now"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now" class="font-medium dark:text-white">24º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+1" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">1PM</small>
+                    <div id="img-now+1"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+1" class="font-medium dark:text-white">25º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+2" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">2PM</small>
+                    <div id="img-now+2"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+2" class="font-medium dark:text-white">26º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+3" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">3PM</small>
+                    <div id="img-now+3"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+3" class="font-medium dark:text-white">26º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+4" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">4PM</small>
+                    <div id="img-now+4"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+4" class="font-medium dark:text-white">23º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+5" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">5PM</small>
+                    <div id="img-now+5"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+5" class="font-medium dark:text-white">24º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+6" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">6PM</small>
+                    <div id="img-now+6"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+6" class="font-medium dark:text-white">26º</p>
+                </div>
+                <div class="forecast-by-time">
+                    <small id="now+7" class="font-medium text-[#4A5A72] dark:text-[#9AA9C2]">7PM</small>
+                    <div id="img-now+7"><img class="w-10" src="353.webp" alt=""></div>
+                    <p id="temp-now+7" class="font-medium dark:text-white">25º</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-auto lg:col-span-2 lg:flex lg:flex-row gap-4 justify-between grid grid-cols-1 grid-rows-[140px_140px_140px_140px]">
+            <div class="flex-1 bg-white rounded-2xl p-5 flex flex-col justify-between dark:bg-[#131D33]">
+                <div class="flex flex-row items-center gap-3 dark:bg-[#131D33]">
+                    <i class="fa-solid fa-wind text-[#4A5A72] dark:text-[#9AA9C2]"></i>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">Wind</p>
+                </div>
+                <div class="flex flex-row items-end ">
+                    <p id="wind" class="text-4xl font-medium dark:text-white">14</p>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">km/h</p>
+                </div>
+                <div>
+                    <small id="wind-direction" class="text-[#445A72]">From the north-west</small>
+                </div>
+            </div>
+            <div class="flex-1 bg-white rounded-2xl p-5 flex flex-col justify-between dark:bg-[#131D33]">
+                <div class="flex flex-row items-center gap-3">
+                    <i class="fa-solid fa-droplet text-[#4A5A72] dark:text-[#9AA9C2]"></i>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">Humidity</p>
+                </div>
+                <div class="flex flex-row items-end">
+                    <p id="humidity" class="text-4xl font-medium dark:text-white">58</p>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">%</p>
+                </div>
+                <div id="humidity-bar" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-2">
+                    <div class="bg-[#313D82] dark:bg-[#6EA2FF] h-2 rounded-full" style="width: 58%"></div>
+                </div>
+
+            </div>
+            <div class="flex-1 bg-white rounded-2xl p-5 flex flex-col justify-between dark:bg-[#131D33]">
+                <div class="flex flex-row items-center gap-3">
+                    <i class="fa-solid fa-sun text-[#4A5A72] dark:text-[#9AA9C2]"></i>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">UV index</p>
+                </div>
+                <div class="flex flex-row items-end">
+                    <p id="uv-index" class="text-4xl font-medium dark:text-white">5</p>
+                    <p id="uv-text" class="font-medium text-[#445A72] dark:text-[#9AA9C2]">Moderate</p>
+                </div>
+                <div id="uv-bar" class="w-full bg-[#E7ECF4] dark:bg-[#22304D] rounded-full h-2">
+                    <div class="bg-[#B45309] h-2 rounded-full dark:bg-[#FBBF24]" style="width: 58%"></div>
+                </div>
+            </div>
+            <div class="flex-1 bg-white rounded-2xl p-5 flex flex-col justify-between dark:bg-[#131D33]">
+                <div class="flex flex-row items-center gap-3">
+                    <i class="fa-solid fa-cloud-sun text-[#4A5A72] dark:text-[#9AA9C2]"></i>
+                    <p class="font-medium text-[#445A72] dark:text-[#9AA9C2]">Sun</p>
+                </div>
+                <div class="flex flex-row lg:justify-between mb-3 pt-5 justify-evenly">
+                    <div class="flex flex-col">
+                        <small class="text-[#445A72] dark:text-[#9AA9C2]">Sunrise</small>
+                        <p id="sunrise" class="font-bold text-2xl dark:text-white">7:42 AM</p>
+                    </div>
+                    <div class="flex flex-col">
+                        <small class="text-[#445A72] dark:text-[#9AA9C2]">Sunset</small>
+                        <p id="sunset" class="font-bold text-2xl dark:text-white">6:48 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
 </body>
+
 </html>
