@@ -1,6 +1,9 @@
-loadData("Panadura");
+let area = "Panadura";
+
+loadData(area);
 function searchCity() {
-    loadData(document.getElementById("txtSearchCity").value);
+    area=document.getElementById("txtSearchCity").value;
+    loadData(area);
 }
 
 let choice = "c";
@@ -10,7 +13,7 @@ function unit_c() {
     document.getElementById("temp_f").innerHTML = `<input class="h-9 w-9 rounded-md bg-white hover:bg-[#313D82] hover:text-white text-[#4A5A72] dark:hover:bg-[#6EA2FF] dark:bg-transparent"
                     type="button" value="ºF" onclick="unit_f()">`
     choice = "c";
-    loadData();
+    loadData(area);
 }
 function unit_f() {
     document.getElementById("temp_c").innerHTML = `<input class="h-9 w-9 rounded-md bg-white hover:bg-[#313D82] hover:text-white text-[#4A5A72] dark:bg-transparent dark:hover:bg-[#6EA2FF]"
@@ -18,7 +21,7 @@ function unit_f() {
     document.getElementById("temp_f").innerHTML = `<input class="h-9 w-9 rounded-md bg-[#313D82] hover:bg-[#313D82] hover:text-white text-white dark:bg-[#6EA2FF]"
                     type="button" value="ºF" onclick="unit_f()">`
     choice = "f";
-    loadData();
+    loadData(area);
 }
 
 document.getElementById("toggle1").addEventListener("click", () => {
